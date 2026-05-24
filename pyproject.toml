@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "bluesky-tiled-mcp"
+version = "0.1.0"
+description = "MCP server for Tiled catalog — exposes Bluesky run data as MCP tools"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "BSD-3-Clause" }
+dependencies = [
+    "fastmcp",
+    "tiled[client]",
+    "matplotlib",
+]
+
+[project.scripts]
+bluesky-tiled-mcp-server = "bluesky_tiled_mcp.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bluesky_tiled_mcp*"]
