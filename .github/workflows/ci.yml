@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      TILED_URI: "http://localhost:8765"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package with test extras
+        run: pip install -e ".[test]"
+
+      # --- Unit tests (no Tiled server needed) ------------------------------
+      - name: Run unit tests
+        run: pytest tests/ -v -k "not (list_tools_via_stdio or list_runs_empty or search_runs_empty)"
+
+      # --- Start Tiled server for integration tests -------------------------
+      - name: Start Tiled server
+        run: |
+          tiled catalog serve /tmp/tiled-test.db \
+            --init \
+            --public \
+            --write /tmp/tiled-data \
+            --write sqlite:////tmp/tiled-tables.db \
+            --host 127.0.0.1 \
+            --port 8765 &
+          echo "Waiting for Tiled to be ready..."
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8765/ > /dev/null 2>&1 && \
+              echo "Tiled ready after ${i}s" && break || sleep 1
+          done
+
+      - name: Run integration tests
+        run: pytest tests/ -v -k "list_tools_via_stdio or list_runs_empty or search_runs_empty"
+        env:
+          TILED_URI: "http://localhost:8765"

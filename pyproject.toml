@@ -15,9 +15,19 @@ dependencies = [
     "matplotlib",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "tiled[server]",
+]
+
 [project.scripts]
 bluesky-tiled-mcp-server = "bluesky_tiled_mcp.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["bluesky_tiled_mcp*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
