@@ -59,11 +59,11 @@ jobs:
             curl -sf http://localhost:11434/ > /dev/null 2>&1 && \
               echo "Ollama ready after ${i}s" && break || sleep 1
           done
-          ollama pull llama3.2:1b
+          ollama pull llama3.2:3b
 
       - name: Run NL tool-selection tests
         run: pytest tests/ -v -k "nl"
         env:
           OLLAMA_BASE_URL: "http://localhost:11434/v1"
-          OLLAMA_MODEL: "llama3.2:1b"
+          OLLAMA_MODEL: "llama3.2:3b"
           TILED_URI: "http://localhost:8765"

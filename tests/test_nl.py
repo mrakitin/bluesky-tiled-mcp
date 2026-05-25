@@ -74,6 +74,13 @@ async def _get_mcp_tools_as_openai_schema() -> list[dict]:
     ]
 
 
+_SYSTEM_PROMPT = (
+    "You are a helpful assistant with access to tools. "
+    "You MUST always call one of the available tools to fulfill the user's request. "
+    "Never respond in plain text — always invoke a tool."
+)
+
+
 async def _ask_llm(prompt: str, tools: list[dict]) -> Optional[str]:
     """Send *prompt* to Ollama with *tools* and return the first tool name called."""
     from openai import AsyncOpenAI
@@ -81,9 +88,12 @@ async def _ask_llm(prompt: str, tools: list[dict]) -> Optional[str]:
     client = AsyncOpenAI(base_url=OLLAMA_BASE_URL, api_key="ollama")
     response = await client.chat.completions.create(
         model=OLLAMA_MODEL,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {"role": "system", "content": _SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
         tools=tools,
-        tool_choice="auto",
+        tool_choice="required",
     )
     choice = response.choices[0]
     tool_calls = getattr(choice.message, "tool_calls", None)
@@ -102,9 +112,11 @@ _TOOLS: list[dict] = []  # populated once per session
 @pytest.fixture(scope="session", autouse=True)
 def _load_tools():
     global _TOOLS
-    _TOOLS = asyncio.get_event_loop().run_until_complete(
-        _get_mcp_tools_as_openai_schema()
-    )
+    loop = asyncio.new_event_loop()
+    try:
+        _TOOLS = loop.run_until_complete(_get_mcp_tools_as_openai_schema())
+    finally:
+        loop.close()
 
 
 @skip_no_ollama
