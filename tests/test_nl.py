@@ -112,11 +112,7 @@ _TOOLS: list[dict] = []  # populated once per session
 @pytest.fixture(scope="session", autouse=True)
 def _load_tools():
     global _TOOLS
-    loop = asyncio.new_event_loop()
-    try:
-        _TOOLS = loop.run_until_complete(_get_mcp_tools_as_openai_schema())
-    finally:
-        loop.close()
+    _TOOLS = asyncio.run(_get_mcp_tools_as_openai_schema())
 
 
 @skip_no_ollama
