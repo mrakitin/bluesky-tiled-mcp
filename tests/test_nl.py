@@ -85,7 +85,7 @@ async def _ask_llm(prompt: str, tools: list[dict]) -> Optional[str]:
     """Send *prompt* to Ollama with *tools* and return the first tool name called."""
     from openai import AsyncOpenAI
 
-    client = AsyncOpenAI(base_url=OLLAMA_BASE_URL, api_key="ollama")
+    client = AsyncOpenAI(base_url=OLLAMA_BASE_URL, api_key="ollama", timeout=120.0)
     response = await client.chat.completions.create(
         model=OLLAMA_MODEL,
         messages=[
