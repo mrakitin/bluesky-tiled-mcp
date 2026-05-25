@@ -20,6 +20,8 @@ test = [
     "pytest",
     "pytest-asyncio",
     "tiled[server]",
+    "openai",
+    "httpx",
 ]
 
 [project.scripts]

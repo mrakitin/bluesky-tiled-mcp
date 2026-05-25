@@ -46,3 +46,24 @@ jobs:
         run: pytest tests/ -v -k "list_tools_via_stdio or list_runs_empty or search_runs_empty"
         env:
           TILED_URI: "http://localhost:8765"
+
+      # --- Ollama for natural-language tests -----------------------------------
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Start Ollama and pull model
+        run: |
+          ollama serve &
+          echo "Waiting for Ollama to be ready..."
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:11434/ > /dev/null 2>&1 && \
+              echo "Ollama ready after ${i}s" && break || sleep 1
+          done
+          ollama pull llama3.2:1b
+
+      - name: Run NL tool-selection tests
+        run: pytest tests/ -v -k "nl"
+        env:
+          OLLAMA_BASE_URL: "http://localhost:11434/v1"
+          OLLAMA_MODEL: "llama3.2:1b"
+          TILED_URI: "http://localhost:8765"
