@@ -121,8 +121,8 @@ def _load_tools():
 
 @skip_no_ollama
 async def test_nl_list_runs():
-    """'List the recent runs' → list_runs."""
-    tool = await _ask_llm("List the most recent experimental runs.", _TOOLS)
+    """'Show all runs in the catalog' → list_runs."""
+    tool = await _ask_llm("Show all runs available in the catalog.", _TOOLS)
     assert tool == "list_runs", f"Unexpected tool: {tool!r}"
 
 
